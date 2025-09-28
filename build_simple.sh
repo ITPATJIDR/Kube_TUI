@@ -17,6 +17,8 @@ pyinstaller \
     --onefile \
     --name kube-tui \
     --add-data "requirements.txt:." \
+    --add-data "kube.tcss:." \
+    --add-data "components/describe_modal.tcss:components" \
     --hidden-import kubernetes \
     --hidden-import kubernetes.client \
     --hidden-import kubernetes.config \
@@ -25,7 +27,12 @@ pyinstaller \
     --hidden-import textual.containers \
     --hidden-import textual.widgets \
     --hidden-import textual.binding \
+    --hidden-import textual.screen \
+    --hidden-import textual.pretty \
     --hidden-import rich \
+    --hidden-import rich.console \
+    --hidden-import rich.text \
+    --hidden-import rich.pretty \
     --console \
     kube_tui.py
 

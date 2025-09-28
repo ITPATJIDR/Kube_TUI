@@ -7,10 +7,21 @@ from components.api_resource_list import ApiResourceList
 from components.api_resource_content import ApiResourceContent
 from textual import log
 from textual.widgets import Footer, Header
+import sys
+import os
 
 class KubeTui(App):
     config.load_kube_config() 
-    CSS_PATH = "kube.tcss"
+    
+    # Handle CSS path for both development and PyInstaller
+    if getattr(sys, 'frozen', False):
+        # Running as PyInstaller bundle
+        base_path = sys._MEIPASS
+    else:
+        # Running as script
+        base_path = os.path.dirname(os.path.abspath(__file__))
+    
+    CSS_PATH = os.path.join(base_path, "kube.tcss")
 
     BINDINGS = [
         ("up", "arrow_up", "Up"),
