@@ -1,0 +1,78 @@
+/* Tron-themed describe modal styling */
+.modal-container {
+    background: #0a0f14;
+    border: solid #0bd3e6;
+    padding: 1;
+    width: 80%;
+    height: 80%;
+    content-align: center middle;
+}
+
+.modal-title {
+    background: #0b141a;
+    color: #00eaff;
+    text-style: bold;
+    content-align-horizontal: center;
+    padding: 1;
+    border: solid #0bd3e6;
+    margin-bottom: 1;
+}
+
+.modal-content {
+    background: #0a0f14;
+    border: round #0bd3e6;
+    padding: 1;
+    height: 1fr;
+}
+
+.describe-output {
+    background: #0a0f14;
+    color: #d7f9ff;
+    border: none;
+    scrollbar-gutter: stable;
+}
+
+/* Pretty widget styling */
+.describe-output > .pretty {
+    background: #0a0f14;
+    color: #d7f9ff;
+}
+
+.describe-output > .pretty > .pretty--scrollable {
+    background: #0a0f14;
+    color: #d7f9ff;
+}
+
+.describe-output > .pretty > .pretty--scrollable > .pretty--scrollbar {
+    background: #0a0f14;
+    color: #0bd3e6;
+}
+
+.describe-output > .pretty > .pretty--scrollable > .pretty--scrollbar-hover {
+    background: #0b141a;
+    color: #00eaff;
+}
+
+/* Tron-style scrollbar for the modal content */
+.modal-content ScrollableContainer {
+    scrollbar-gutter: stable;
+}
+
+.modal-content ScrollableContainer > .scrollable--scrollbar {
+    background: #0a0f14;
+    color: #0bd3e6;
+}
+
+.modal-content ScrollableContainer > .scrollable--scrollbar-hover {
+    background: #0b141a;
+    color: #00eaff;
+}
+
+/* Focus states for better UX */
+.modal-container:focus {
+    border: heavy #00eaff;
+}
+
+.modal-content:focus {
+    border: heavy #00eaff;
+}

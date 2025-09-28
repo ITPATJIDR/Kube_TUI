@@ -1,0 +1,246 @@
+Screen {
+    layout: horizontal;
+    background: #050a0e;
+    color: #d7f9ff;
+}
+
+.box {
+    background: #0a0f14;
+    border: solid #0bd3e6;
+}
+
+.box.focused {
+    background: #0b141a;
+    border: heavy #00eaff;
+}
+
+.box_1 {
+    height: 10%;
+    width: 100%;
+}
+
+.box_2 {
+    height: 90%;
+    width: 100%;
+}
+
+.box_3 {
+    height: 100%;
+    width: 70%;
+}
+
+
+Namespace {
+    background: #0a0f14;
+    color: #d7f9ff;
+}
+
+#ns_title {
+    width: 100%;
+    content-align-horizontal: center;
+    text-style: bold;
+    height: 1;
+}
+
+#namespace_list {
+    width: 100%;
+    border: round #0bd3e6;
+    padding: 0 1;
+    background: #0a0f14;
+}
+
+#namespace_list:focus {
+    border: solid #00eaff;
+}
+
+#namespace_list .option-list--option {
+    color: #8be9ff;
+}
+
+#namespace_list .option-list--option-hover {
+    color: #b3f2ff;
+    text-style: bold;
+}
+
+#namespace_list .option-list--option-highlighted {
+    color: #0a0f14;
+    background: #00eaff;
+    text-style: bold;
+}
+
+#namespace_list .option-list--option-selected {
+    color: #00eaff;
+    text-style: underline;
+}
+
+
+ApiResourceList {
+    background: #0a0f14;
+    color: #d7f9ff;
+}
+
+#api_title {
+    width: 100%;
+    content-align-horizontal: center;
+    text-style: bold;
+    height: 1;
+}
+
+#api_list {
+    width: 100%;
+    height: 95%;
+    border: round #0bd3e6;
+    padding: 0 1;
+    background: #0a0f14;
+}
+
+#api_list:focus {
+    border: heavy #00eaff;
+}
+
+#api_list .option-list--option {
+    color: #8be9ff;
+}
+
+#api_list .option-list--option-hover {
+    color: #b3f2ff;
+    text-style: bold;
+}
+
+#api_list .option-list--option-highlighted {
+    color: #0a0f14;
+    background: #00eaff;
+    text-style: bold;
+}
+
+#api_list .option-list--option-selected {
+    color: #00eaff;
+    text-style: underline;
+}
+
+
+ApiResourceContent {
+    background: #0a0f14;
+    color: #d7f9ff;
+    padding: 1;
+}
+
+#content_title {
+    content-align-horizontal: center;
+    text-style: bold;
+    height: 1;
+    color: #00eaff;
+    margin-bottom: 1;
+}
+
+#resource_table {
+    width: 100%;
+    height: 1fr;
+    background: #0a0f14;
+    color: #d7f9ff;
+    border: round #0bd3e6;
+}
+
+#resource_table:focus {
+    border: heavy #00eaff;
+}
+
+#resource_table .datatable--header {
+    background: #0b141a;
+    color: #00eaff;
+    text-style: bold;
+}
+
+#resource_table .datatable--cell {
+    color: #8be9ff;
+    padding: 0 1;
+}
+
+#resource_table .datatable--row-hover {
+    background: #0b141a;
+}
+
+#resource_table .datatable--row-highlighted {
+    background: #0a0f14;
+    color: #00eaff;
+}
+
+
+/* Tron-themed describe modal styling */
+.modal-container {
+    background: #0a0f14;
+    border: solid #0bd3e6;
+    padding: 1;
+    width: 100%;
+    height: 100%;
+    content-align: center middle;
+}
+
+.modal-title {
+    background: #0b141a;
+    color: #00eaff;
+    text-style: bold;
+    content-align-horizontal: center;
+    padding: 1;
+    border: solid #0bd3e6;
+    margin-bottom: 1;
+}
+
+.modal-content {
+    background: #0a0f14;
+    border: round #0bd3e6;
+    padding: 1;
+    height: 1fr;
+}
+
+.describe-output {
+    background: #0a0f14;
+    color: #d7f9ff;
+    border: none;
+    scrollbar-gutter: stable;
+}
+
+/* Pretty widget styling */
+.describe-output > .pretty {
+    background: #0a0f14;
+    color: #d7f9ff;
+}
+
+.describe-output > .pretty > .pretty--scrollable {
+    background: #0a0f14;
+    color: #d7f9ff;
+}
+
+.describe-output > .pretty > .pretty--scrollable > .pretty--scrollbar {
+    background: #0a0f14;
+    color: #0bd3e6;
+}
+
+.describe-output > .pretty > .pretty--scrollable > .pretty--scrollbar-hover {
+    background: #0b141a;
+    color: #00eaff;
+}
+
+/* Tron-style scrollbar for the modal content */
+.modal-content ScrollableContainer {
+    scrollbar-gutter: stable;
+}
+
+.modal-content ScrollableContainer > .scrollable--scrollbar {
+    background: #0a0f14;
+    color: #0bd3e6;
+}
+
+.modal-content ScrollableContainer > .scrollable--scrollbar-hover {
+    background: #0b141a;
+    color: #00eaff;
+}
+
+/* Focus states for better UX */
+.modal-container:focus {
+    border: heavy #00eaff;
+}
+
+.modal-content:focus {
+    border: heavy #00eaff;
+}
