@@ -13,12 +13,9 @@ import os
 class KubeTui(App):
     config.load_kube_config() 
     
-    # Handle CSS path for both development and PyInstaller
     if getattr(sys, 'frozen', False):
-        # Running as PyInstaller bundle
         base_path = sys._MEIPASS
     else:
-        # Running as script
         base_path = os.path.dirname(os.path.abspath(__file__))
     
     CSS_PATH = os.path.join(base_path, "kube.tcss")
@@ -29,6 +26,7 @@ class KubeTui(App):
         ("left", "arrow_left", "Left"),
         ("right", "arrow_right", "Right"),
         ("enter", "enter", "Enter"),
+        ("watch", "watch", "Watch"),
     ]
 
     def compose(self) -> ComposeResult:
@@ -111,6 +109,15 @@ class KubeTui(App):
                     break
                 elif isinstance(child, ApiResourceContent):
                     child.action_focus_table()
+                    break
+
+    def action_watch(self) -> None:
+        """Delegate watch action to the active ApiResourceContent widget"""
+        if self.current_box == "box_3":
+            main = self.query_one("#main_content", Container)
+            for child in main.children:
+                if isinstance(child, ApiResourceContent):
+                    child.action_watch()
                     break
 
 if __name__ == "__main__":

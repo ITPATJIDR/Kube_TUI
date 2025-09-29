@@ -3,6 +3,7 @@ from textual.app import ComposeResult, RenderResult
 from textual.widgets import Static, DataTable
 from kube_api import KubeAPI
 from components.describe_modal import DescribeModal
+from textual.timer import Timer
 
 
 class ApiResourceContent(Widget):
@@ -14,7 +15,14 @@ class ApiResourceContent(Widget):
         ("enter", "focus_table", "Focus Table"),
         ("escape", "unfocus_table", "Unfocus Table"),
         ("ctrl+d", "describe", "Describe"),
+        ("w", "watch", "Watch"),
     ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.watch_enabled = False
+        self.watch_timer = None
+        self.current_resource = None
 
     def compose(self) -> ComposeResult:
         yield Static("API Resource Content", id="content_title")
@@ -40,6 +48,10 @@ class ApiResourceContent(Widget):
         # Update title initially
         self._update_title()
 
+    def on_unmount(self) -> None:
+        """Clean up when widget is unmounted"""
+        self._stop_watch()
+
     def on_focus(self) -> None:
         """Called when the widget gains focus"""
         self._update_title()
@@ -51,6 +63,11 @@ class ApiResourceContent(Widget):
     def _populate_output(self, resource_name: str):
         """Populate the DataTable with resource data"""
         try:
+            # Stop watching if resource changed
+            if self.watch_enabled and self.current_resource != resource_name:
+                self._stop_watch()
+                self._update_title()
+            
             kube_api = KubeAPI()
             table = self.query_one("#resource_table", DataTable)
             
@@ -160,6 +177,49 @@ class ApiResourceContent(Widget):
         except Exception as e:
             self.notify(f"Error describing resource: {str(e)}", title="Error")
 
+    def action_watch(self) -> None:
+        """Toggle watch mode for the current resource"""
+        selected_resource = getattr(self.app, "selected_api_resource", None)
+        if not selected_resource:
+            self.notify("No API resource selected", title="Error")
+            return
+        
+        if str(selected_resource).startswith("Option('") and str(selected_resource).endswith("')"):
+            selected_resource = str(selected_resource)[8:-2]
+        selected_resource = selected_resource.split(' (')[0]
+        
+        if self.watch_enabled:
+            # Stop watching
+            self._stop_watch()
+            self.notify("Watch stopped", title="Info")
+        else:
+            # Start watching
+            self.current_resource = selected_resource
+            self._start_watch()
+            self.notify(f"Watching {selected_resource} (refresh every 1s)", title="Info")
+        
+        self._update_title()
+
+    def _start_watch(self) -> None:
+        """Start the watch timer"""
+        self.watch_enabled = True
+        # Refresh every 1 second (1000ms)
+        self.watch_timer = self.set_timer(1.0, self._refresh_data)
+
+    def _stop_watch(self) -> None:
+        """Stop the watch timer"""
+        self.watch_enabled = False
+        if self.watch_timer:
+            self.watch_timer.stop()
+            self.watch_timer = None
+
+    def _refresh_data(self) -> None:
+        """Refresh the data when in watch mode"""
+        if self.watch_enabled and self.current_resource:
+            self._populate_output(self.current_resource)
+            # Reschedule the timer for continuous watching
+            self.watch_timer = self.set_timer(1.0, self._refresh_data)
+
     def _update_title(self) -> None:
         """Update the title based on current focus and selected resource"""
         selected_resource = getattr(self.app, "selected_api_resource", None)
@@ -171,7 +231,15 @@ class ApiResourceContent(Widget):
                 selected_resource = str(selected_resource)[8:-2]
             selected_resource = selected_resource.split(' (')[0]
             
-            title_widget.update(f"Api Resource: {selected_resource}")
+            # Add watch status with red circle indicator
+            if self.watch_enabled:
+                watch_indicator = "🔴 "
+                watch_status = " [WATCHING]"
+            else:
+                watch_indicator = "⚪ "
+                watch_status = ""
+            
+            title_widget.update(f"{watch_indicator}Api Resource: {selected_resource}{watch_status}")
         else:
             if table.has_focus:
                 title_widget.update("API Resource Content (FOCUSED)")
