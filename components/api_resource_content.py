@@ -15,7 +15,8 @@ class ApiResourceContent(Widget):
         ("enter", "focus_table", "Focus Table"),
         ("escape", "unfocus_table", "Unfocus Table"),
         ("ctrl+d", "describe", "Describe"),
-        ("w", "watch", "Watch"),
+        ("ctrl+w", "watch", "Watch"),
+        ("ctrl+l", "logs", "Logs"),
     ]
 
     def __init__(self, *args, **kwargs):
@@ -41,7 +42,7 @@ class ApiResourceContent(Widget):
             self._populate_output(selected_resource)
         else:
             print("no resource selected")
-            table.clear()
+            table.clear(columns=True)
             table.add_columns("STATUS")
             table.add_row("No resource selected")
         
@@ -71,7 +72,8 @@ class ApiResourceContent(Widget):
             kube_api = KubeAPI()
             table = self.query_one("#resource_table", DataTable)
             
-            table.clear()
+            # Clear both columns and rows to ensure clean refresh
+            table.clear(columns=True)
             
             resource_data = self._get_resource_data(resource_name, kube_api)
             
@@ -98,7 +100,7 @@ class ApiResourceContent(Widget):
                 
         except Exception as e:
             table = self.query_one("#resource_table", DataTable)
-            table.clear()
+            table.clear(columns=True)
             table.add_columns("ERROR")
             table.add_row(f"Error: {str(e)}")
 
@@ -304,7 +306,10 @@ class ApiResourceContent(Widget):
         if 'status' in sample_resource:
             status_fields = sample_resource['status']
             
-            if 'phase' in status_fields:
+            # For pods, prioritize container status over phase
+            if 'containerStatuses' in status_fields and status_fields['containerStatuses']:
+                columns.append(('STATUS', 'status.containerStatuses[0].state', 15))
+            elif 'phase' in status_fields:
                 columns.append(('STATUS', 'status.phase', 15))
             elif 'conditions' in status_fields and status_fields['conditions']:
                 first_condition = status_fields['conditions'][0]
@@ -352,6 +357,24 @@ class ApiResourceContent(Widget):
                 available = item.get('status', {}).get('availableReplicas', 0)
                 total = item.get('status', {}).get('replicas', 0)
                 return f"{available}/{total}"
+            elif field_path == 'status.containerStatuses[0].state':
+                # Extract container status like kubectl does
+                container_statuses = item.get('status', {}).get('containerStatuses', [])
+                if not container_statuses:
+                    return item.get('status', {}).get('phase', 'Unknown')
+                
+                first_container = container_statuses[0]
+                state = first_container.get('state', {})
+                
+                # Check for different container states
+                if 'waiting' in state:
+                    return state['waiting'].get('reason', 'Waiting')
+                elif 'running' in state:
+                    return 'Running'
+                elif 'terminated' in state:
+                    return state['terminated'].get('reason', 'Terminated')
+                else:
+                    return item.get('status', {}).get('phase', 'Unknown')
             elif field_path == 'metadata.creationTimestamp':
                 timestamp = item.get('metadata', {}).get('creationTimestamp')
                 return self._calculate_age(timestamp) if timestamp else "Unknown"
