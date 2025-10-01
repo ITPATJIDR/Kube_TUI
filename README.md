@@ -1,5 +1,17 @@
+# L8zyKube
+<img src="./assets/kube_tui.png"/>
+
+
+
 ### TODO
 
 - Allow Click Mouse
-- Create Resouce with Text area with Example Yaml on new Tab
-- Log resource
+- monitor kube status, disk
+
+
+### Can DO
+
+- select resource filter by namespace
+- Create resource 
+- Watch resource 
+- Logs resource 

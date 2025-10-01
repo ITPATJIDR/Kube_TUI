@@ -3,6 +3,8 @@ from textual.app import ComposeResult, RenderResult
 from textual.widgets import Static, DataTable
 from kube_api import KubeAPI
 from components.describe_modal import DescribeModal
+from components.api_resource_logs import ApiResourceLogs
+from components.create_resource import CreateResource
 from textual.timer import Timer
 
 
@@ -17,6 +19,7 @@ class ApiResourceContent(Widget):
         ("ctrl+d", "describe", "Describe"),
         ("ctrl+w", "watch", "Watch"),
         ("ctrl+l", "logs", "Logs"),
+        ("ctrl+c", "create", "Create"),
     ]
 
     def __init__(self, *args, **kwargs):
@@ -178,6 +181,71 @@ class ApiResourceContent(Widget):
             
         except Exception as e:
             self.notify(f"Error describing resource: {str(e)}", title="Error")
+
+    def action_logs(self) -> None:
+        """Show logs modal for the selected resource"""
+        table = self.query_one("#resource_table", DataTable)
+        
+        if table.row_count == 0:
+            self.notify("No resources to view logs", title="Error")
+            return
+        
+        try:
+            # Get the currently selected row
+            selected_row = table.cursor_row
+            if selected_row >= table.row_count:
+                selected_row = 0
+            
+            # Get the resource name from the first column (NAME)
+            resource_name = table.get_cell_at((selected_row, 0))
+            
+            # Get the selected API resource type
+            selected_resource = getattr(self.app, "selected_api_resource", None)
+            if not selected_resource:
+                self.notify("No API resource selected", title="Error")
+                return
+                
+            if str(selected_resource).startswith("Option('") and str(selected_resource).endswith("')"):
+                selected_resource = str(selected_resource)[8:-2]
+            selected_resource = selected_resource.split(' (')[0]
+            
+            # Get current namespace
+            current_namespace = getattr(self.app, 'current_namespace', 'default')
+            
+            # Check if the resource type supports logs (only pods typically do)
+            if selected_resource.lower() != "pods":
+                self.notify(f"Logs are only available for pods, not {selected_resource}", title="Error")
+                return
+            
+            # Show logs modal
+            logs_modal = ApiResourceLogs(selected_resource, resource_name, current_namespace)
+            self.app.push_screen(logs_modal)
+            
+        except Exception as e:
+            self.notify(f"Error viewing logs: {str(e)}", title="Error")
+
+    def action_create(self) -> None:
+        """Show create resource modal for the selected resource type"""
+        try:
+            # Get the selected API resource type
+            selected_resource = getattr(self.app, "selected_api_resource", None)
+            if not selected_resource:
+                self.notify("No API resource selected", title="Error")
+                return
+                
+            if str(selected_resource).startswith("Option('") and str(selected_resource).endswith("')"):
+                selected_resource = str(selected_resource)[8:-2]
+            selected_resource = selected_resource.split(' (')[0]
+            
+            # Get current namespace
+            current_namespace = getattr(self.app, 'current_namespace', 'default')
+            
+            # Show create resource modal
+            create_modal = CreateResource(selected_resource, current_namespace)
+            self.app.push_screen(create_modal)
+            
+        except Exception as e:
+            self.notify(f"Error opening create resource: {str(e)}", title="Error")
 
     def action_watch(self) -> None:
         """Toggle watch mode for the current resource"""
