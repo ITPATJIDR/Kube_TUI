@@ -31,7 +31,7 @@ class ApiResourceLogs(ModalScreen):
             yield Static(f"kubectl logs {self.resource_name} -n {self.namespace}", 
                         classes="modal-title", id="logs_title")
             with ScrollableContainer(classes="modal-content", id="logs_container"):
-                yield Static("", id="logs_content")
+                yield Static("", id="logs_content", markup=False)
     
     def on_mount(self) -> None:
         """Called when the modal is mounted"""
@@ -101,12 +101,10 @@ class ApiResourceLogs(ModalScreen):
             kube_api = KubeAPI()
             logs_content_widget = self.query_one("#logs_content", Static)
             
-            # Check if the resource supports logs (only pods typically do)
             if self.resource_type.lower() != "pods":
                 logs_content_widget.update(f"❌ Logs are only available for pods, not {self.resource_type}")
                 return
             
-            # Get logs using the Kubernetes API
             logs = self._get_pod_logs(kube_api)
             
             if logs:
@@ -122,24 +120,20 @@ class ApiResourceLogs(ModalScreen):
     def _get_pod_logs(self, kube_api: KubeAPI) -> str:
         """Get logs for a specific pod"""
         try:
-            # Use the Kubernetes Python client to get logs
             logs = kube_api.v1.read_namespaced_pod_log(
                 name=self.resource_name,
                 namespace=self.namespace,
-                follow=False,  # Don't follow, we'll refresh manually
-                tail_lines=100  # Get last 100 lines
+                follow=False,  
+                tail_lines=100  
             )
-            return logs
+            return self._format_logs(logs)
         except Exception as e:
-            # If the pod doesn't exist or has no logs, try to get more specific error
             try:
-                # Check if pod exists
                 pod = kube_api.v1.read_namespaced_pod(
                     name=self.resource_name,
                     namespace=self.namespace
                 )
                 
-                # If pod exists but no logs, it might be a completed job or similar
                 if pod.status.phase in ["Succeeded", "Failed"]:
                     return f"Pod {self.resource_name} is in {pod.status.phase} state - no active logs available"
                 else:
@@ -147,3 +141,22 @@ class ApiResourceLogs(ModalScreen):
                     
             except Exception as pod_error:
                 return f"Error: Pod {self.resource_name} not found in namespace {self.namespace}: {str(pod_error)}"
+    
+    def _format_logs(self, raw_logs: str) -> str:
+        """Format logs with spacing for better readability"""
+        if not raw_logs:
+            return raw_logs
+        
+        # Split logs by newlines and filter out empty lines
+        log_lines = [line.strip() for line in raw_logs.split('\n') if line.strip()]
+        
+        # Add spacing between each log line for better readability
+        # Each log line gets an extra blank line after it
+        formatted_logs = []
+        for i, line in enumerate(log_lines):
+            formatted_logs.append(line)
+            # Add spacing after each line except the last one
+            if i < len(log_lines) - 1:
+                formatted_logs.append("")  # Empty line for spacing
+        
+        return '\n'.join(formatted_logs)
