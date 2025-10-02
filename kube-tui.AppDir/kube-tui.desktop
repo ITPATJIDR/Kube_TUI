@@ -1,8 +1,0 @@
-[Desktop Entry]
-Name=Kubernetes TUI
-Comment=A modern terminal user interface for Kubernetes resource management
-Exec=kube-tui
-Icon=kube-tui
-Type=Application
-Categories=System;TerminalEmulator;Development;
-Terminal=true
